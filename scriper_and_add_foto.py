@@ -2,39 +2,39 @@
 # coding: utf-8
 
 # Imports
-import urllib.request
+import os, re, urllib.request
 from grab import Grab, UploadFile
 
 
-
-# Function for load and upload foto
-def load_and_upload_foto():
+def scraiping_add():
     # Search link on the foto
     pointer = Grab()
+    pointer.setup(timeout=10, connect_timeout=10)
     pointer.go('http://www.photosight.ru/photos/6599649/?from=best')
-    response_url_foto = pointer.doc.select('//img[@id="big_photo"]/@src').text()
+    response_url_foto = pointer.doc.select('//img[@id = "big_photo"]/@src').text()
+    response_text_foto = pointer.doc.select('//img[@id = "big_photo"]/@alt').text()
 
-    if (response_url_foto != None):
-        # Load foto on the PC
-        urllib.request.urlretrieve(response_url_foto, 'image.png')
-    else:
-        print('Не удалось получить данные')
+    # Split on the list
+    list_name_foto = re.split(' +', response_text_foto)
 
+    # Create join string
+    str_name_foto = (str(list_name_foto[0]) + '\t' + (str(list_name_foto[1])))
+
+    # Translation of the bytes
+    bytes_name_foto = str_name_foto.encode('utf-8')
+
+    # Load foto on the PC
+    urllib.request.urlretrieve(response_url_foto, 'image.png')
 
     # Load foto on the Server
-    pointer.go('http://learning_logs/add_foto')
-    pointer.set_input('name', 'fly')
-    pointer.set_input('image', UploadFile('image.png'))
-    pointer.set_input('text', 'Это очень маленькая и гибкая птичка')
-    pointer.submit()
+    pointer.go('https://ourfoto.herokuapp.com/add_foto/')
+    pointer.doc.set_input('name', bytes_name_foto)
+    pointer.doc.set_input('image', UploadFile('image.png'))
+    pointer.doc.set_input('text', response_text_foto)
+    pointer.doc.submit()
+
+    # Delete foto
+    os.remove('image.png')
 
 
-
-
-
-
-
-
-
-
-
+print(scraiping_add())
