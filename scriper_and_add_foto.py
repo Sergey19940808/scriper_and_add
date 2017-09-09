@@ -14,6 +14,7 @@ def scraiping_add():
     response_url_foto = pointer.doc.select('//img[@id = "big_photo"]/@src').text()
     response_text_foto = pointer.doc.select('//img[@id = "big_photo"]/@alt').text()
 
+
     # Split on the list
     list_name_foto = re.split(' +', response_text_foto)
 
@@ -35,6 +36,5 @@ def scraiping_add():
 
     # Delete foto
     os.remove('image.png')
-
 
 print(scraiping_add())
